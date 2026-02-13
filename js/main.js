@@ -1158,7 +1158,7 @@ function showRouteOnMap() {
   );
 
   alert(
-    `<span class="material-symbols-outlined">alt_route</span> ${pistesFound} pistes DFCI trouvées dans le corridor de route.\nLes pistes sont surlignées en vert sur la carte.`,
+    `${pistesFound} pistes DFCI trouvées dans le corridor de route.\nLes pistes sont surlignées en vert sur la carte.`,
   );
 }
 
@@ -1338,6 +1338,7 @@ const VEH_STATUS = {
   disponible: {
     l: "Disponible",
     i: "✅",
+    ms: "check_circle",
     c: "#22c55e",
     bg: "rgba(34,197,94,0.08)",
     bc: "rgba(34,197,94,0.3)",
@@ -1345,6 +1346,7 @@ const VEH_STATUS = {
   en_patrouille: {
     l: "En patrouille",
     i: "🚒",
+    ms: "local_fire_department",
     c: "#f97316",
     bg: "rgba(249,115,22,0.08)",
     bc: "rgba(249,115,22,0.3)",
@@ -1352,6 +1354,7 @@ const VEH_STATUS = {
   garage: {
     l: "Au garage",
     i: "🏠",
+    ms: "garage_home",
     c: "#3b82f6",
     bg: "rgba(59,130,246,0.08)",
     bc: "rgba(59,130,246,0.3)",
@@ -1359,6 +1362,7 @@ const VEH_STATUS = {
   maintenance: {
     l: "Maintenance",
     i: "🔧",
+    ms: "build",
     c: "#eab308",
     bg: "rgba(234,179,8,0.08)",
     bc: "rgba(234,179,8,0.3)",
@@ -1366,6 +1370,7 @@ const VEH_STATUS = {
   hors_service: {
     l: "Hors service",
     i: "⛔",
+    ms: "block",
     c: "#ef4444",
     bg: "rgba(239,68,68,0.08)",
     bc: "rgba(239,68,68,0.3)",
@@ -1373,19 +1378,28 @@ const VEH_STATUS = {
   reserve: {
     l: "Réserve",
     i: "📦",
+    ms: "inventory_2",
     c: "#8b5cf6",
     bg: "rgba(139,92,246,0.08)",
     bc: "rgba(139,92,246,0.3)",
   },
 };
 const VEH_TYPES = [
-  { v: "vl", l: "🚗 VL (Véhicule léger)" },
-  { v: "vlhr", l: "🚙 VLHR (Véhicule léger hors route)" },
-  { v: "ccfm", l: "🚒 CCFM (Camion citerne feux de forêt moyen)" },
-  { v: "ccfl", l: "🚒 CCFL (Camion citerne feux de forêt léger)" },
-  { v: "pickup", l: "🛻 Pick-up" },
-  { v: "quad", l: "🏍️ Quad / SSV" },
-  { v: "autre", l: "🚐 Autre" },
+  { v: "vl", l: "🚗 VL (Véhicule léger)", ms: "directions_car" },
+  { v: "vlhr", l: "🚙 VLHR (Véhicule léger hors route)", ms: "directions_car" },
+  {
+    v: "ccfm",
+    l: "🚒 CCFM (Camion citerne feux de forêt moyen)",
+    ms: "fire_truck",
+  },
+  {
+    v: "ccfl",
+    l: "🚒 CCFL (Camion citerne feux de forêt léger)",
+    ms: "fire_truck",
+  },
+  { v: "pickup", l: "🛻 Pick-up", ms: "local_shipping" },
+  { v: "quad", l: "🏍️ Quad / SSV", ms: "sports_motorsports" },
+  { v: "autre", l: "🚐 Autre", ms: "airport_shuttle" },
 ];
 
 function buildVehicules() {
@@ -1396,8 +1410,8 @@ function buildVehicules() {
     statusCounts[k] = fleet.filter((v) => v.status === k).length;
   });
 
-  el.innerHTML = `<h2 style="font-family:'Space Grotesk';font-size:18px;font-weight:800;color:#f1f5f9;margin-bottom:4px">🚗 Gestion du parc véhicules</h2>
-  <p style="color:#94a3b8;font-size:12px;margin-bottom:12px">${auth.level === "dept" ? "🏛️ Département — Tous les véhicules" : "🏘️ " + auth.commune} • ${fleet.length} véhicule${fleet.length > 1 ? "s" : ""}</p>
+  el.innerHTML = `<h2 style="font-family:'Space Grotesk';font-size:18px;font-weight:800;color:#f1f5f9;margin-bottom:4px"><span class="material-symbols-outlined" style="vertical-align:-4px">directions_car</span> Gestion du parc véhicules</h2>
+  <p style="color:#94a3b8;font-size:12px;margin-bottom:12px">${auth.level === "dept" ? '<span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">account_balance</span> Département — Tous les véhicules' : '<span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">location_city</span> ' + auth.commune} • ${fleet.length} véhicule${fleet.length > 1 ? "s" : ""}</p>
 
   <!-- Résumé statuts -->
   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
@@ -1407,7 +1421,7 @@ function buildVehicules() {
           k,
           s,
         ]) => `<div class="card" style="flex:1 1 100px;min-width:90px;border-left:3px solid ${s.c};padding:8px 10px;cursor:pointer${statusCounts[k] > 0 ? "" : ";opacity:0.5"}" onclick="document.getElementById('veh-status-filter').value='${k}';filterVehicules()">
-      <div style="font-size:9px;color:#64748b">${s.i} ${s.l}</div>
+      <div style="font-size:9px;color:#64748b"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">${s.ms}</span> ${s.l}</div>
       <div style="font-size:20px;font-weight:800;color:${s.c};font-family:'Space Grotesk'">${statusCounts[k] || 0}</div>
     </div>`,
       )
@@ -1434,12 +1448,12 @@ function buildVehicules() {
     </select>`
         : ""
     }
-    <button onclick="showAddVehicule()" class="btn" style="padding:8px 14px;background:rgba(34,197,94,0.1);border:1px solid #22c55e;color:#22c55e;font-size:12px;font-weight:700">+ Ajouter</button>
+    <button onclick="showAddVehicule()" class="btn" style="padding:8px 14px;background:rgba(34,197,94,0.1);border:1px solid #22c55e;color:#22c55e;font-size:12px;font-weight:700"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">add</span> Ajouter</button>
   </div>
 
   <!-- Formulaire ajout (caché) -->
   <div id="veh-add-form" style="display:none;margin-bottom:14px" class="card" >
-    <div style="font-size:13px;font-weight:700;color:#22c55e;font-family:'Space Grotesk';margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px">➕ Enregistrer un véhicule</div>
+    <div style="font-size:13px;font-weight:700;color:#22c55e;font-family:'Space Grotesk';margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">add_circle</span> Enregistrer un véhicule</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
       <div style="flex:1 1 140px"><label style="font-size:10px;color:#94a3b8">Immatriculation</label><input id="va-immat" class="field-input" placeholder="AA-123-BB" style="text-transform:uppercase"/></div>
       <div style="flex:1 1 160px"><label style="font-size:10px;color:#94a3b8">Type</label>
@@ -1467,7 +1481,7 @@ function buildVehicules() {
     </div>
     <div style="margin-bottom:8px"><label style="font-size:10px;color:#94a3b8">Notes</label><textarea id="va-notes" class="field-input" rows="2" placeholder="Équipement spécifique, remarques..."></textarea></div>
     <div style="display:flex;gap:8px">
-      <button onclick="submitVehicule()" class="btn" style="padding:8px 20px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:13px;font-weight:700">✅ Enregistrer</button>
+      <button onclick="submitVehicule()" class="btn" style="padding:8px 20px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:13px;font-weight:700"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">check</span> Enregistrer</button>
       <button onclick="document.getElementById('veh-add-form').style.display='none'" class="btn" style="padding:8px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;font-size:12px">Annuler</button>
     </div>
   </div>
@@ -1547,7 +1561,7 @@ function submitVehicule(editId) {
   }
   dbSave("fleet", vehicleFleet);
   alert(
-    "✅ Véhicule " +
+    "Véhicule " +
       (editId ? "modifié" : "enregistré") +
       " : " +
       immat +
@@ -1580,7 +1594,7 @@ function filterVehicules() {
   if (!container) return;
   if (fleet.length === 0) {
     container.innerHTML =
-      '<div class="card" style="text-align:center;color:#64748b;padding:30px">🚗 Aucun véhicule enregistré<br><span style="font-size:11px">Cliquez sur "+ Ajouter" pour enregistrer votre premier véhicule</span></div>';
+      '<div class="card" style="text-align:center;color:#64748b;padding:30px"><span class="material-symbols-outlined" style="font-size:48px;opacity:0.5">directions_car</span><br>Aucun véhicule enregistré<br><span style="font-size:11px">Cliquez sur "Ajouter" pour enregistrer votre premier véhicule</span></div>';
     return;
   }
   const now = new Date();
@@ -1608,27 +1622,27 @@ function filterVehicules() {
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <span style="font-size:16px;font-weight:800;color:#f1f5f9;font-family:'Space Grotesk';letter-spacing:1px">${v.immat}</span>
             <span style="font-size:12px;font-weight:800;color:#fca5a5;font-family:'Space Grotesk'">${v.code}</span>
-            ${pos ? '<span style="color:#22c55e;font-size:10px">● GPS actif</span>' : ""}
+            ${pos ? '<span style="color:#22c55e;font-size:10px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">my_location</span> GPS actif</span>' : ""}
           </div>
-          <div style="font-size:11px;color:#94a3b8">${v.commune} ${v.dfci ? "(" + v.dfci + ")" : ""} • ${typeLbl ? typeLbl.l : v.type} ${v.modele ? "• " + v.modele : ""} ${v.annee ? "(" + v.annee + ")" : ""}</div>
+          <div style="font-size:11px;color:#94a3b8">${v.commune} ${v.dfci ? "(" + v.dfci + ")" : ""} • ${typeLbl ? typeLbl.l.split(" ")[1] : v.type} ${v.modele ? "• " + v.modele : ""} ${v.annee ? "(" + v.annee + ")" : ""}</div>
         </div>
         <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
-          <span style="padding:3px 10px;border-radius:8px;background:${st.bg};color:${st.c};font-size:10px;font-weight:700;border:1px solid ${st.bc}">${st.i} ${st.l}</span>
+          <span style="padding:3px 10px;border-radius:8px;background:${st.bg};color:${st.c};font-size:10px;font-weight:700;border:1px solid ${st.bc}"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">${st.ms}</span> ${st.l}</span>
         </div>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:10px;color:#64748b;margin-bottom:6px">
-        ${v.km ? "<span>📏 " + v.km.toLocaleString() + " km</span>" : ""}
-        ${v.ctDate ? `<span style="${ctAlert ? "color:#ef4444;font-weight:700" : ""}">🔧 CT: ${v.ctDate}${ctAlert ? " ⚠️" : ""}</span>` : ""}
-        ${v.assurDate ? `<span style="${assurAlert ? "color:#ef4444;font-weight:700" : ""}">🛡️ Assur: ${v.assurDate}${assurAlert ? " ⚠️" : ""}</span>` : ""}
-        ${lastRecord ? "<span>📝 Dernière sortie: " + formatDateFR(lastRecord.date) + "</span>" : ""}
+        ${v.km ? '<span><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">straighten</span> ' + v.km.toLocaleString() + " km</span>" : ""}
+        ${v.ctDate ? `<span style="${ctAlert ? "color:#ef4444;font-weight:700" : ""}"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">build</span> CT: ${v.ctDate}${ctAlert ? ' <span class="material-symbols-outlined" style="font-size:12px">warning</span>' : ""}</span>` : ""}
+        ${v.assurDate ? `<span style="${assurAlert ? "color:#ef4444;font-weight:700" : ""}"><span class=\"material-symbols-outlined\" style=\"font-size:12px;vertical-align:-2px\">shield</span> Assur: ${v.assurDate}${assurAlert ? ' <span class="material-symbols-outlined" style="font-size:12px">warning</span>' : ""}</span>` : ""}
+        ${lastRecord ? '<span><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">history</span> Dernière sortie: ' + formatDateFR(lastRecord.date) + "</span>" : ""}
       </div>
-      ${v.notes ? '<div style="font-size:10px;color:#94a3b8;background:rgba(0,0,0,0.15);padding:4px 8px;border-radius:4px;margin-bottom:6px">' + v.notes + "</div>" : ""}
+      ${v.notes ? '<div style="font-size:10px;color:#94a3b8;background:rgba(0,0,0,0.15);padding:4px 8px;border-radius:4px;margin-bottom:6px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">description</span> ' + v.notes + "</div>" : ""}
       <div style="display:flex;gap:4px;flex-wrap:wrap">
         ${vehStatusButtons(v)}
-        <button onclick="editVehicule('${v.id}')" class="btn" style="padding:4px 8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;font-size:10px">✏️ Modifier</button>
-        <button onclick="vehHistory('${v.id}')" class="btn" style="padding:4px 8px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);color:#8b5cf6;font-size:10px">📜 Historique</button>
-        ${pos ? `<button onclick="window.open('https://waze.com/ul?ll=${pos.lat},${pos.lon}&navigate=yes','_blank')" class="btn" style="padding:4px 8px;background:rgba(34,197,94,0.1);border:1px solid #22c55e;color:#22c55e;font-size:10px">🧭 Localiser</button>` : ""}
-        <button onclick="removeVehicule('${v.id}')" class="btn" style="padding:4px 8px;background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.2);color:#ef4444;font-size:10px">🗑️</button>
+        <button onclick="editVehicule('${v.id}')" class="btn" style="padding:4px 8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;font-size:10px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">edit</span> Modifier</button>
+        <button onclick="vehHistory('${v.id}')" class="btn" style="padding:4px 8px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);color:#8b5cf6;font-size:10px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">history</span> Historique</button>
+        ${pos ? `<button onclick="window.open('https://waze.com/ul?ll=${pos.lat},${pos.lon}&navigate=yes','_blank')" class="btn" style="padding:4px 8px;background:rgba(34,197,94,0.1);border:1px solid #22c55e;color:#22c55e;font-size:10px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">explore</span> Localiser</button>` : ""}
+        <button onclick="removeVehicule('${v.id}')" class="btn" style="padding:4px 8px;background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.2);color:#ef4444;font-size:10px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">delete</span></button>
       </div>
     </div>`;
     })
@@ -1649,7 +1663,7 @@ function vehStatusButtons(v) {
     .slice(0, 3)
     .map((s) => {
       const st = VEH_STATUS[s];
-      return `<button onclick="setVehStatus('${v.id}','${s}')" class="btn" style="padding:4px 8px;background:${st.bg};border:1px solid ${st.bc};color:${st.c};font-size:10px">${st.i} ${st.l}</button>`;
+      return `<button onclick="setVehStatus('${v.id}','${s}')" class="btn" style="padding:4px 8px;background:${st.bg};border:1px solid ${st.bc};color:${st.c};font-size:10px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">${st.ms}</span> ${st.l}</button>`;
     })
     .join("");
 }
@@ -1693,7 +1707,8 @@ function editVehicule(vehId) {
   // Change submit button to update
   const btn = form.querySelector('button[onclick^="submitVehicule"]');
   if (btn) {
-    btn.textContent = "💾 Mettre à jour";
+    btn.innerHTML =
+      '<span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">save</span> Mettre à jour';
     btn.setAttribute("onclick", `submitVehicule('${vehId}')`);
   }
   form.scrollIntoView({ behavior: "smooth" });
@@ -1718,7 +1733,7 @@ function vehHistory(vehId) {
       const d = new Date(h.ts);
       return `<div style="display:flex;gap:8px;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03)">
       <span style="font-size:10px;color:#64748b;min-width:90px">${d.toLocaleDateString("fr")} ${d.toLocaleTimeString("fr", { hour: "2-digit", minute: "2-digit" })}</span>
-      <span style="padding:2px 6px;border-radius:6px;background:${(VEH_STATUS[h.status] || {}).bg || "#333"};color:${(VEH_STATUS[h.status] || {}).c || "#999"};font-size:10px;font-weight:700">${st.i} ${st.l}</span>
+      <span style="padding:2px 6px;border-radius:6px;background:${(VEH_STATUS[h.status] || {}).bg || "#333"};color:${(VEH_STATUS[h.status] || {}).c || "#999"};font-size:10px;font-weight:700"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">${st.ms}</span> ${st.l}</span>
     </div>`;
     })
     .join("");
@@ -1728,7 +1743,7 @@ function vehHistory(vehId) {
       const rl = RLVL.find((x) => x.v === r.risque) || RLVL[0];
       return `<div style="display:flex;gap:8px;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03)">
       <span style="font-size:10px;color:#64748b;min-width:90px">${formatDateFR(r.date)}</span>
-      <span style="font-size:10px;color:#cbd5e1">${r.heure || ""} ${r.chef ? "👤 " + r.chef : ""} ${r.observation ? "— " + r.observation.substring(0, 40) + "..." : ""}</span>
+      <span style="font-size:10px;color:#cbd5e1">${r.heure || ""} ${r.chef ? '<span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">person</span> ' + r.chef : ""} ${r.observation ? "— " + r.observation.substring(0, 40) + "..." : ""}</span>
       <span style="padding:1px 4px;border-radius:4px;background:${rl.bg};color:${rl.c};font-size:9px">${rl.ls}</span>
     </div>`;
     })
@@ -1738,7 +1753,7 @@ function vehHistory(vehId) {
   modal.style.cssText =
     "position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;padding:20px";
   modal.innerHTML = `<div style="background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:20px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto">
-    <div style="font-size:16px;font-weight:800;color:#f1f5f9;font-family:'Space Grotesk';margin-bottom:4px">📜 ${v.immat} — ${v.commune}</div>
+    <div style="font-size:16px;font-weight:800;color:#f1f5f9;font-family:'Space Grotesk';margin-bottom:4px"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-2px">history</span> ${v.immat} — ${v.commune}</div>
     <div style="font-size:11px;color:#94a3b8;margin-bottom:14px">${v.code} • ${(VEH_TYPES.find((t) => t.v === v.type) || { l: "" }).l} ${v.modele ? "• " + v.modele : ""}</div>
     <div style="font-size:12px;font-weight:700;color:#8b5cf6;margin-bottom:6px">Changements de statut (${v.statusHistory.length})</div>
     <div style="margin-bottom:14px">${histLines || '<div style="color:#64748b;font-size:11px">Aucun historique</div>'}</div>
@@ -1754,7 +1769,7 @@ function removeVehicule(vehId) {
   if (!v) return;
   if (
     !confirm(
-      "⚠️ Supprimer définitivement le véhicule " +
+      "Supprimer définitivement le véhicule " +
         v.immat +
         " (" +
         v.commune +
@@ -1773,19 +1788,19 @@ function removeVehicule(vehId) {
 function buildMissions() {
   const el = document.getElementById("tab-missions");
   const MT = [
-    { v: "inter_feu", l: "🔥 Feu", c: "#ef4444" },
-    { v: "lever_doute", l: "🔎 Lever de doute", c: "#f59e0b" },
-    { v: "surveillance", l: "👁️ Surveillance", c: "#3b82f6" },
+    { v: "inter_feu", l: "Feu", i: "local_fire_department", c: "#ef4444" },
+    { v: "lever_doute", l: "Lever de doute", i: "search", c: "#f59e0b" },
+    { v: "surveillance", l: "Surveillance", i: "visibility", c: "#3b82f6" },
   ];
   const comms = auth.level === "dept" ? COMMUNES : [auth.commune];
-  el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px"><h2 style="font-family:'Space Grotesk';font-size:18px;font-weight:800;color:#f1f5f9;margin:0">🎯 Missions (${missions.length})</h2><button onclick="document.getElementById('mf').style.display=document.getElementById('mf').style.display==='none'?'block':'none'" class="btn" style="padding:8px 16px;background:#b45309;color:#fff;font-size:12px">+ Mission</button></div>
+  el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px"><h2 style="font-family:'Space Grotesk';font-size:18px;font-weight:800;color:#f1f5f9;margin:0"><span class="material-symbols-outlined" style="vertical-align:-4px">track_changes</span> Missions (${missions.length})</h2><button onclick="document.getElementById('mf').style.display=document.getElementById('mf').style.display==='none'?'block':'none'" class="btn" style="padding:8px 16px;background:#b45309;color:#fff;font-size:12px">+ Mission</button></div>
   <div id="mf" style="display:none;background:rgba(180,83,9,0.08);border:1px solid rgba(180,83,9,0.3);border-radius:10px;padding:16px;margin-bottom:14px">
-    <div style="font-size:14px;font-weight:700;color:#fcd34d;font-family:'Space Grotesk';margin-bottom:12px">📡 Nouvelle mission</div>
-    <div style="margin-bottom:8px"><div style="font-size:11px;color:#94a3b8;margin-bottom:4px">Type</div><div style="display:flex;gap:4px">${MT.map((t) => `<button onclick="document.getElementById('mf-type').value='${t.v}';this.parentElement.querySelectorAll('button').forEach(b=>b.style.opacity='0.35');this.style.opacity='1'" class="btn" style="padding:6px 12px;border:2px solid ${t.c};background:rgba(0,0,0,0.3);color:${t.c};font-size:11px;font-weight:700;opacity:0.35">${t.l}</button>`).join("")}</div><input type="hidden" id="mf-type" value="surveillance"/></div>
+    <div style="font-size:14px;font-weight:700;color:#fcd34d;font-family:'Space Grotesk';margin-bottom:12px"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">satellite_alt</span> Nouvelle mission</div>
+    <div style="margin-bottom:8px"><div style="font-size:11px;color:#94a3b8;margin-bottom:4px">Type</div><div style="display:flex;gap:4px">${MT.map((t) => `<button onclick="document.getElementById('mf-type').value='${t.v}';this.parentElement.querySelectorAll('button').forEach(b=>b.style.opacity='0.35');this.style.opacity='1'" class="btn" style="padding:6px 12px;border:2px solid ${t.c};background:rgba(0,0,0,0.3);color:${t.c};font-size:11px;font-weight:700;opacity:0.35"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">${t.i}</span> ${t.l}</button>`).join("")}</div><input type="hidden" id="mf-type" value="surveillance"/></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><div style="flex:1 1 180px"><label style="font-size:11px;color:#94a3b8">Commune</label><select id="mf-commune" class="field-input">${comms.map((c) => `<option value="${c}">${c}</option>`).join("")}</select></div><div style="flex:1 1 180px"><label style="font-size:11px;color:#94a3b8">Patrouille</label><input id="mf-patrol" class="field-input" placeholder="CCFF..."/></div></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><div style="flex:1 1 150px"><label style="font-size:11px;color:#94a3b8">DFCI</label><input id="mf-dfci" class="field-input" placeholder="KL45-N7.2"/></div><div style="flex:1 1 200px"><label style="font-size:11px;color:#94a3b8">GPS cible</label><input id="mf-gps" class="field-input" placeholder="43.4534, 6.2345"/></div></div>
     <div style="margin-bottom:8px"><label style="font-size:11px;color:#94a3b8">Instructions</label><textarea id="mf-instr" class="field-input" rows="2" placeholder="Détails..."></textarea></div>
-    <button onclick="submitMission()" class="btn" style="padding:9px 18px;background:#b45309;color:#fff;font-size:12px">📡 Envoyer</button>
+    <button onclick="submitMission()" class="btn" style="padding:9px 18px;background:#b45309;color:#fff;font-size:12px"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">send</span> Envoyer</button>
   </div>
   <div id="missions-list"></div>`;
   renderMissions();
@@ -1815,11 +1830,11 @@ function renderMissions() {
   if (!el) return;
   el.innerHTML =
     missions.length === 0
-      ? '<div style="text-align:center;padding:40px;color:#4b5563"><div style="font-size:32px">🎯</div>Aucune mission</div>'
+      ? '<div style="text-align:center;padding:40px;color:#4b5563"><div style="font-size:32px"><span class="material-symbols-outlined" style="font-size:48px;opacity:0.5">track_changes</span></div>Aucune mission</div>'
       : missions
           .map((m) => {
             const mt = MT[m.mtype] || MT.surveillance;
-            return `<div class="card" style="margin-bottom:6px;border-left:3px solid ${m.sos ? "#dc2626" : mt.c};background:${m.sos ? "rgba(220,38,38,0.08)" : "rgba(255,255,255,0.03)"}"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;margin-bottom:6px"><span style="font-size:13px;font-weight:700;color:${mt.c}">${mt.l} ${m.sos ? "🚨 SOS" : ""}</span><span style="font-size:10px;color:#4b5563">${new Date(m.ts).toLocaleString("fr-FR")}</span></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:4px;font-size:11px">${m.patrol ? `<div><span style="color:#4b5563">Patrouille:</span> <span style="color:#cbd5e1">${m.patrol}</span></div>` : ""} ${m.commune ? `<div><span style="color:#4b5563">Commune:</span> <span style="color:#cbd5e1">${m.commune}</span></div>` : ""} ${m.dfci ? `<div><span style="color:#f59e0b">DFCI:</span> <span style="color:#fcd34d;font-family:monospace;font-weight:700">${m.dfci}</span></div>` : ""} ${m.gps ? `<div><span style="color:#3b82f6">GPS:</span> <span style="color:#93c5fd;font-family:monospace">${m.gps}</span></div>` : ""} ${m.instr ? `<div style="grid-column:1/-1"><span style="color:#4b5563">Instructions:</span> <span style="color:#cbd5e1">${m.instr}</span></div>` : ""}</div>${m.gps ? `<button onclick="window.open('https://waze.com/ul?ll=${m.gps}&navigate=yes','_blank')" class="btn" style="padding:4px 10px;background:#059669;color:#fff;font-size:10px;margin-top:6px">🧭 Waze</button>` : ""}</div>`;
+            return `<div class="card" style="margin-bottom:6px;border-left:3px solid ${m.sos ? "#dc2626" : mt.c};background:${m.sos ? "rgba(220,38,38,0.08)" : "rgba(255,255,255,0.03)"}"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;margin-bottom:6px"><span style="font-size:13px;font-weight:700;color:${mt.c}"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">${mt.i || "visibility"}</span> ${mt.l} ${m.sos ? '<span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px;color:#ef4444">emergency_share</span> SOS' : ""}</span><span style="font-size:10px;color:#4b5563">${new Date(m.ts).toLocaleString("fr-FR")}</span></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:4px;font-size:11px">${m.patrol ? `<div><span style="color:#4b5563">Patrouille:</span> <span style="color:#cbd5e1">${m.patrol}</span></div>` : ""} ${m.commune ? `<div><span style="color:#4b5563">Commune:</span> <span style="color:#cbd5e1">${m.commune}</span></div>` : ""} ${m.dfci ? `<div><span style="color:#f59e0b">DFCI:</span> <span style="color:#fcd34d;font-family:monospace;font-weight:700">${m.dfci}</span></div>` : ""} ${m.gps ? `<div><span style="color:#3b82f6">GPS:</span> <span style="color:#93c5fd;font-family:monospace">${m.gps}</span></div>` : ""} ${m.instr ? `<div style="grid-column:1/-1"><span style="color:#4b5563">Instructions:</span> <span style="color:#cbd5e1">${m.instr}</span></div>` : ""}</div>${m.gps ? `<button onclick="window.open('https://waze.com/ul?ll=${m.gps}&navigate=yes','_blank')" class="btn" style="padding:4px 10px;background:#059669;color:#fff;font-size:10px;margin-top:6px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">explore</span> Waze</button>` : ""}</div>`;
           })
           .join("");
 }
@@ -1837,9 +1852,9 @@ function buildSaisie() {
       ? COMMUNE_DFCI[commune] || ""
       : "";
   const isTracking = !!activeTrackId;
-  el.innerHTML = `<h2 style="font-family:'Space Grotesk';font-size:18px;font-weight:800;color:#f1f5f9;margin-bottom:10px">📝 Saisie terrain — Fiche journalière</h2>
+  el.innerHTML = `<h2 style="font-family:'Space Grotesk';font-size:18px;font-weight:800;color:#f1f5f9;margin-bottom:10px"><span class="material-symbols-outlined" style="vertical-align:-4px">edit_note</span> Saisie terrain — Fiche journalière</h2>
   <div style="max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:12px">
-    <div class="card"><div style="font-size:13px;font-weight:700;color:#dc2626;font-family:'Space Grotesk';margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px">🆔 Identification Véhicule & Date</div>
+    <div class="card"><div style="font-size:13px;font-weight:700;color:#dc2626;font-family:'Space Grotesk';margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">badge</span> Identification Véhicule & Date</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
         <div style="flex:1 1 140px"><label style="font-size:10px;color:#94a3b8">Date</label><input type="date" id="sf-date" value="${now}" class="field-input"/></div>
         <div style="flex:1 1 100px"><label style="font-size:10px;color:#94a3b8">Heure début</label><input type="time" id="sf-heure" value="${nowTime}" class="field-input"/></div>
@@ -1862,7 +1877,7 @@ function buildSaisie() {
         <div style="flex:1 1 120px"><label style="font-size:10px;color:#94a3b8">Immatriculation</label><input id="sf-immat" class="field-input" placeholder="AA-123-BB"/>
           ${
             getAccessibleFleet().length > 0
-              ? `<select id="sf-fleet-pick" class="field-input" style="margin-top:4px;font-size:10px;color:#f97316" onchange="pickFleetVehicule()"><option value="">🚗 Choisir dans le parc...</option>${getAccessibleFleet()
+              ? `<select id="sf-fleet-pick" class="field-input" style="margin-top:4px;font-size:10px;color:#f97316" onchange="pickFleetVehicule()"><option value=""><span class="material-symbols-outlined" style="vertical-align:-2px">directions_car</span> Choisir dans le parc...</option>${getAccessibleFleet()
                   .filter(
                     (v) =>
                       v.status === "disponible" || v.status === "en_patrouille",
@@ -1879,7 +1894,7 @@ function buildSaisie() {
         <div style="flex:1 1 100px"><label style="font-size:10px;color:#94a3b8">Km fin</label><input id="sf-kmfin" type="number" class="field-input"/></div>
       </div>
     </div>
-    <div class="card"><div style="font-size:13px;font-weight:700;color:#dc2626;font-family:'Space Grotesk';margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px">👥 Équipe</div>
+    <div class="card"><div style="font-size:13px;font-weight:700;color:#dc2626;font-family:'Space Grotesk';margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">group</span> Équipe</div>
       ${[
         "Chef patrouille|sf-chef|sf-tch",
         "Équipier 1|sf-eq1|sf-t1",
@@ -1888,20 +1903,20 @@ function buildSaisie() {
       ]
         .map((r) => {
           const [l, ni, ti] = r.split("|");
-          return `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px"><div style="flex:1 1 180px"><label style="font-size:10px;color:#94a3b8">${l}</label><input id="${ni}" class="field-input"/></div><div style="flex:1 1 140px"><label style="font-size:10px;color:#94a3b8">📱 Tél.</label><input id="${ti}" type="tel" class="field-input" placeholder="06..."/></div></div>`;
+          return `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px"><div style="flex:1 1 180px"><label style="font-size:10px;color:#94a3b8">${l}</label><input id="${ni}" class="field-input"/></div><div style="flex:1 1 140px"><label style="font-size:10px;color:#94a3b8"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">smartphone</span> Tél.</label><input id="${ti}" type="tel" class="field-input" placeholder="06..."/></div></div>`;
         })
         .join("")}
     </div>
-    <div class="card"><div style="font-size:13px;font-weight:700;color:#dc2626;font-family:'Space Grotesk';margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px">🛤️ Enregistrement trajet GPS</div>
+    <div class="card"><div style="font-size:13px;font-weight:700;color:#dc2626;font-family:'Space Grotesk';margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">timeline</span> Enregistrement trajet GPS</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <button onclick="toggleGPSTrack()" id="btn-gps-track" class="btn" style="padding:8px 16px;background:${isTracking ? "rgba(239,68,68,0.2)" : "rgba(34,197,94,0.1)"};border:1px solid ${isTracking ? "#ef4444" : "#22c55e"};color:${isTracking ? "#ef4444" : "#22c55e"};font-size:12px;font-weight:700">
-          ${isTracking ? "⏹️ Arrêter l'enregistrement" : "▶️ Démarrer l'enregistrement GPS"}
+          ${isTracking ? '<span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">stop_circle</span> Arrêter l\'enregistrement' : '<span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">play_circle</span> Démarrer l\'enregistrement GPS'}
         </button>
-        <span id="track-status" style="font-size:11px;color:${isTracking ? "#22c55e" : "#64748b"}">${isTracking ? "🔴 Enregistrement en cours... (" + (gpsTrackData[activeTrackId] || []).length + " pts)" : "⚪ Inactif"}</span>
+        <span id="track-status" style="font-size:11px;color:${isTracking ? "#22c55e" : "#64748b"}">${isTracking ? '<span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px;color:#ef4444">radio_button_checked</span> Enregistrement en cours... (' + (gpsTrackData[activeTrackId] || []).length + " pts)" : '<span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">radio_button_unchecked</span> Inactif'}</span>
       </div>
       <div style="font-size:10px;color:#64748b;margin-top:6px">Le trajet GPS sera enregistré et associé à cette fiche de patrouille</div>
     </div>
-    <div class="card"><div style="font-size:13px;font-weight:700;color:#dc2626;font-family:'Space Grotesk';margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px">⚠️ Risque & Observations</div>
+    <div class="card"><div style="font-size:13px;font-weight:700;color:#dc2626;font-family:'Space Grotesk';margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">warning</span> Risque & Observations</div>
       <div style="margin-bottom:8px"><label style="font-size:11px;color:#94a3b8;display:block;margin-bottom:4px">Risque préfectoral maxi</label><div id="sf-risk-btns" style="display:flex;gap:3px;flex-wrap:wrap"></div></div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px">
         <label style="font-size:11px;color:#94a3b8;cursor:pointer"><input type="checkbox" id="sf-inter"/> Intervention</label>
@@ -1916,21 +1931,21 @@ function buildSaisie() {
       </div>
       <div><label style="font-size:10px;color:#94a3b8">Observations / Compte-rendu</label><textarea id="sf-obs" class="field-input" rows="3" placeholder="Conditions météo, incidents, zones parcourues..."></textarea></div>
     </div>
-    <div class="card"><div style="font-size:13px;font-weight:700;color:#dc2626;font-family:'Space Grotesk';margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px">📸 Photos terrain (${fieldPhotos.filter((p) => p.date === now).length} aujourd'hui)</div>
+    <div class="card"><div style="font-size:13px;font-weight:700;color:#dc2626;font-family:'Space Grotesk';margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">photo_camera</span> Photos terrain (${fieldPhotos.filter((p) => p.date === now).length} aujourd'hui)</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
         <label class="btn" style="padding:8px 16px;background:rgba(59,130,246,0.1);border:1px solid #3b82f6;color:#3b82f6;cursor:pointer;font-size:12px">
-          📷 Prendre une photo
+          <span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">photo_camera</span> Prendre une photo
           <input type="file" accept="image/*" capture="environment" onchange="handlePhotoCapture(this,'saisie')" style="display:none"/>
         </label>
         <label class="btn" style="padding:8px 16px;background:rgba(168,85,247,0.1);border:1px solid #a855f7;color:#a855f7;cursor:pointer;font-size:12px">
-          🖼️ Galerie
+          <span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">image</span> Galerie
           <input type="file" accept="image/*" onchange="handlePhotoCapture(this,'saisie')" style="display:none"/>
         </label>
       </div>
       <div id="saisie-photos-preview" style="display:flex;flex-wrap:wrap;gap:6px"></div>
       <div style="font-size:10px;color:#64748b;margin-top:4px">Les photos sont géolocalisées et horodatées automatiquement</div>
     </div>
-    <button onclick="submitSaisie()" class="btn" style="padding:14px;background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;font-size:15px;font-weight:700;font-family:'Space Grotesk';letter-spacing:1px">✅ Enregistrer la fiche</button>
+    <button onclick="submitSaisie()" class="btn" style="padding:14px;background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;font-size:15px;font-weight:700;font-family:'Space Grotesk';letter-spacing:1px"><span class="material-symbols-outlined" style="font-size:18px;vertical-align:-4px">check_circle</span> Enregistrer la fiche</button>
     <div style="font-size:10px;color:#64748b;text-align:center">Les données sont sauvegardées localement sur votre appareil</div>
   </div>`;
   // Risk buttons
@@ -2020,7 +2035,7 @@ function toggleGPSTrack() {
         const st = document.getElementById("track-status");
         if (st)
           st.textContent =
-            "🔴 Enregistrement... (" +
+            '<span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px;color:#ef4444">radio_button_checked</span> Enregistrement... (' +
             gpsTrackData[activeTrackId].length +
             " pts)";
         dbSave("gpstracks", gpsTrackData);
@@ -2098,7 +2113,7 @@ function renderSaisiePhotos() {
       (p, i) => `
     <div style="position:relative;width:90px;height:70px;border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,0.1)">
       <img src="${p.data}" style="width:100%;height:100%;object-fit:cover"/>
-      <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);font-size:8px;color:#94a3b8;padding:1px 3px">${p.time} ${p.lat ? "📍" : "⚠️"}</div>
+      <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);font-size:8px;color:#94a3b8;padding:1px 3px">${p.time} ${p.lat ? '<span class="material-symbols-outlined" style="font-size:8px;vertical-align:-1px">place</span>' : '<span class="material-symbols-outlined" style="font-size:8px;vertical-align:-1px;color:#f97316">warning</span>'}</div>
       <button onclick="deletePhoto('${p.id}')" style="position:absolute;top:2px;right:2px;background:rgba(239,68,68,0.8);border:none;color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;cursor:pointer;line-height:16px;padding:0">✕</button>
     </div>
   `,
@@ -2208,9 +2223,9 @@ function submitSaisie() {
     commune: record.commune,
   });
   alert(
-    "✅ Fiche de patrouille enregistrée !\n📅 " +
+    "Fiche de patrouille enregistrée !\n" +
       record.date +
-      " • 🚒 Véhicule " +
+      " • Véhicule " +
       record.vehicule +
       " • " +
       record.commune,
@@ -2226,14 +2241,14 @@ function buildHistorique() {
   const records = getAccessibleRecords();
   const dates = [...new Set(records.map((r) => r.date))].sort().reverse();
   const communes = [...new Set(records.map((r) => r.commune))].sort();
-  el.innerHTML = `<h2 style="font-family:'Space Grotesk';font-size:18px;font-weight:800;color:#f1f5f9;margin-bottom:4px">📚 Historique des patrouilles</h2>
-  <p style="color:#94a3b8;font-size:12px;margin-bottom:12px">${auth.level === "dept" ? "🏛️ Vue département — Toutes les communes" : "🏘️ Commune de " + auth.commune} • ${records.length} fiche${records.length > 1 ? "s" : ""}</p>
+  el.innerHTML = `<h2 style="font-family:'Space Grotesk';font-size:18px;font-weight:800;color:#f1f5f9;margin-bottom:4px"><span class="material-symbols-outlined" style="vertical-align:-4px">history_edu</span> Historique des patrouilles</h2>
+  <p style="color:#94a3b8;font-size:12px;margin-bottom:12px">${auth.level === "dept" ? '<span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">account_balance</span> Vue département — Toutes les communes' : '<span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">location_city</span> Commune de ' + auth.commune} • ${records.length} fiche${records.length > 1 ? "s" : ""}</p>
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
     <select id="hist-date" class="field-input" style="flex:1 1 140px" onchange="filterHistorique()">
       <option value="">📅 Toutes les dates</option>
       ${dates.map((d) => `<option value="${d}">${formatDateFR(d)}</option>`).join("")}
     </select>
-    ${auth.level === "dept" ? `<select id="hist-commune" class="field-input" style="flex:1 1 160px" onchange="filterHistorique()"><option value="">🏘️ Toutes communes</option>${communes.map((c) => `<option value="${c}">${c}</option>`).join("")}</select>` : ""}
+      ${auth.level === "dept" ? `<select id="hist-commune" class="field-input" style="flex:1 1 160px" onchange="filterHistorique()"><option value=""><span class="material-symbols-outlined" style="vertical-align:-2px">location_city</span> Toutes communes</option>${communes.map((c) => `<option value="${c}">${c}</option>`).join("")}</select>` : ""}
     <select id="hist-vehicule" class="field-input" style="flex:1 1 100px" onchange="filterHistorique()">
       <option value="">🚒 Tous véhicules</option>
       <option value="1">1 — Président</option><option value="2">2 — Patrouille</option>
@@ -2270,7 +2285,7 @@ function filterHistorique() {
   if (!container) return;
   if (records.length === 0) {
     container.innerHTML =
-      '<div class="card" style="text-align:center;color:#64748b;padding:30px">📭 Aucune fiche de patrouille trouvée</div>';
+      '<div class="card" style="text-align:center;color:#64748b;padding:30px"><span class="material-symbols-outlined" style="font-size:48px;opacity:0.5">inbox</span><br>Aucune fiche de patrouille trouvée</div>';
     return;
   }
   container.innerHTML = records
@@ -2293,30 +2308,30 @@ function filterHistorique() {
           <div style="font-size:12px;color:#94a3b8">${r.commune} ${r.dfci ? "(" + r.dfci + ")" : ""}</div>
         </div>
         <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
-          <span style="padding:2px 8px;border-radius:6px;background:rgba(220,38,38,0.1);color:#fca5a5;font-size:11px;font-weight:700;font-family:'Space Grotesk'">🚒 V${r.vehicule}</span>
+          <span style="padding:2px 8px;border-radius:6px;background:rgba(220,38,38,0.1);color:#fca5a5;font-size:11px;font-weight:700;font-family:'Space Grotesk'"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">fire_truck</span> V${r.vehicule}</span>
           <span style="padding:2px 8px;border-radius:8px;background:${rl.bg};color:${rl.c};font-size:10px;font-weight:700;border:1px solid ${rl.c}">${rl.ls}</span>
-          ${r.intervention ? '<span style="padding:2px 6px;border-radius:6px;background:rgba(239,68,68,0.15);color:#ef4444;font-size:10px;font-weight:700">🚨 Intervention</span>' : ""}
-          ${r.departFeu ? '<span style="padding:2px 6px;border-radius:6px;background:rgba(249,115,22,0.15);color:#f97316;font-size:10px;font-weight:700">🔥 Feu</span>' : ""}
+          ${r.intervention ? '<span style="padding:2px 6px;border-radius:6px;background:rgba(239,68,68,0.15);color:#ef4444;font-size:10px;font-weight:700"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">emergency</span> Intervention</span>' : ""}
+          ${r.departFeu ? '<span style="padding:2px 6px;border-radius:6px;background:rgba(249,115,22,0.15);color:#f97316;font-size:10px;font-weight:700"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">local_fire_department</span> Feu</span>' : ""}
         </div>
       </div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:#94a3b8;margin-bottom:6px">
-        <span>⏰ ${r.heure || "?"}${r.heureFin ? " → " + r.heureFin : ""}</span>
-        ${r.immat ? "<span>🚗 " + r.immat + "</span>" : ""}
-        ${kmDist ? "<span>📏 " + kmDist + " km</span>" : ""}
-        ${r.chef ? "<span>👤 " + r.chef + "</span>" : ""}
-        <span>👥 ${[r.eq1, r.eq2, r.eq3].filter(Boolean).length + 1} pers.</span>
+        <span><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">schedule</span> ${r.heure || "?"}${r.heureFin ? " → " + r.heureFin : ""}</span>
+        ${r.immat ? '<span><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">directions_car</span> ' + r.immat + "</span>" : ""}
+        ${kmDist ? '<span><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">straighten</span> ' + kmDist + " km</span>" : ""}
+        ${r.chef ? '<span><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">person</span> ' + r.chef + "</span>" : ""}
+        <span><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">group</span> ${[r.eq1, r.eq2, r.eq3].filter(Boolean).length + 1} pers.</span>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:#94a3b8;margin-bottom:6px">
-        ${r.nbPietons ? "<span>🚶 " + r.nbPietons + " piétons</span>" : ""}
-        ${r.nbVehicules ? "<span>🚗 " + r.nbVehicules + " véhicules</span>" : ""}
-        ${r.nbPro ? "<span>👷 " + r.nbPro + " pros</span>" : ""}
+        ${r.nbPietons ? '<span><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">directions_walk</span> ' + r.nbPietons + " piétons</span>" : ""}
+        ${r.nbVehicules ? '<span><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">directions_car</span> ' + r.nbVehicules + " véhicules</span>" : ""}
+        ${r.nbPro ? '<span><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">engineering</span> ' + r.nbPro + " pros</span>" : ""}
       </div>
       ${r.observation ? '<div style="font-size:12px;color:#cbd5e1;background:rgba(0,0,0,0.2);padding:8px;border-radius:6px;margin-bottom:6px">' + r.observation.replace(/\n/g, "<br>") + "</div>" : ""}
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
-        ${hasTrack ? `<button onclick="showTrackOnMap('${r.trackId}','${r.commune}','${r.date}')" class="btn" style="padding:4px 10px;background:rgba(34,197,94,0.1);border:1px solid #22c55e;color:#22c55e;font-size:10px">🗺️ Voir trajet (${trackPts} pts)</button>` : ""}
-        ${photos ? `<button onclick="showRecordPhotos('${r.id}')" class="btn" style="padding:4px 10px;background:rgba(59,130,246,0.1);border:1px solid #3b82f6;color:#3b82f6;font-size:10px">📸 ${photos} photo${photos > 1 ? "s" : ""}</button>` : ""}
-        <button onclick="exportRecord('${r.id}')" class="btn" style="padding:4px 10px;background:rgba(168,85,247,0.1);border:1px solid #a855f7;color:#a855f7;font-size:10px">📤 Exporter</button>
-        <button onclick="deleteRecord('${r.id}')" class="btn" style="padding:4px 10px;background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:10px">🗑️</button>
+        ${hasTrack ? `<button onclick="showTrackOnMap('${r.trackId}','${r.commune}','${r.date}')" class="btn" style="padding:4px 10px;background:rgba(34,197,94,0.1);border:1px solid #22c55e;color:#22c55e;font-size:10px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">map</span> Voir trajet (${trackPts} pts)</button>` : ""}
+        ${photos ? `<button onclick="showRecordPhotos('${r.id}')" class="btn" style="padding:4px 10px;background:rgba(59,130,246,0.1);border:1px solid #3b82f6;color:#3b82f6;font-size:10px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">photo_camera</span> ${photos} photo${photos > 1 ? "s" : ""}</button>` : ""}
+        <button onclick="exportRecord('${r.id}')" class="btn" style="padding:4px 10px;background:rgba(168,85,247,0.1);border:1px solid #a855f7;color:#a855f7;font-size:10px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">ios_share</span> Exporter</button>
+        <button onclick="deleteRecord('${r.id}')" class="btn" style="padding:4px 10px;background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:10px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">delete</span></button>
       </div>
     </div>`;
     })
@@ -2347,7 +2362,7 @@ function showTrackOnMap(trackId, commune, date) {
     const startM = L.marker(latlngs[0], {
       icon: L.divIcon({
         html:
-          '<div style="background:#22c55e;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap">▶ Départ ' +
+          '<div style="background:#22c55e;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap"><span class="material-symbols-outlined" style="font-size:10px;vertical-align:-1px">play_arrow</span> Départ ' +
           pts[0].ts.substring(11, 16) +
           "</div>",
         className: "",
@@ -2358,7 +2373,7 @@ function showTrackOnMap(trackId, commune, date) {
     const endM = L.marker(latlngs[latlngs.length - 1], {
       icon: L.divIcon({
         html:
-          '<div style="background:#ef4444;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap">⏹ Fin ' +
+          '<div style="background:#ef4444;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap"><span class="material-symbols-outlined" style="font-size:10px;vertical-align:-1px">stop</span> Fin ' +
           pts[pts.length - 1].ts.substring(11, 16) +
           "</div>",
         className: "",
@@ -2371,7 +2386,7 @@ function showTrackOnMap(trackId, commune, date) {
     for (let i = 1; i < pts.length; i++)
       dist += haversine(pts[i - 1].lat, pts[i - 1].lon, pts[i].lat, pts[i].lon);
     alert(
-      `🗺️ Trajet ${commune} — ${formatDateFR(date)}\n📍 ${pts.length} points GPS\n📏 ${dist < 1 ? (dist * 1000).toFixed(0) + " m" : dist.toFixed(2) + " km"}\n⏰ ${pts[0].ts.substring(11, 16)} → ${pts[pts.length - 1].ts.substring(11, 16)}`,
+      `Trajet ${commune} — ${formatDateFR(date)}\n${pts.length} points GPS\n${dist < 1 ? (dist * 1000).toFixed(0) + " m" : dist.toFixed(2) + " km"}\n${pts[0].ts.substring(11, 16)} → ${pts[pts.length - 1].ts.substring(11, 16)}`,
     );
   }, 300);
 }
@@ -2389,20 +2404,20 @@ function showRecordPhotos(recordId) {
   modal.style.cssText =
     "position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px";
   modal.innerHTML = `
-    <div style="color:#f1f5f9;font-size:16px;font-weight:700;margin-bottom:12px;font-family:'Space Grotesk'">📸 Photos — ${record.commune} ${formatDateFR(record.date)}</div>
+    <div style="color:#f1f5f9;font-size:16px;font-weight:700;margin-bottom:12px;font-family:'Space Grotesk'"><span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px">photo_camera</span> Photos — ${record.commune} ${formatDateFR(record.date)}</div>
     <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-height:70vh;overflow-y:auto;padding:10px">
       ${photos
         .map(
           (
             p,
           ) => `<div style="text-align:center"><img src="${p.data}" style="max-width:300px;max-height:250px;border-radius:8px;border:2px solid rgba(255,255,255,0.1)"/>
-        <div style="font-size:10px;color:#94a3b8;margin-top:4px">${p.time} ${p.lat ? "📍 " + p.lat.toFixed(4) + "," + p.lon.toFixed(4) : "⚠️ Pas de GPS"}</div>
+        <div style="font-size:10px;color:#94a3b8;margin-top:4px">${p.time} ${p.lat ? '<span class="material-symbols-outlined" style="font-size:10px;vertical-align:-1px;color:#94a3b8">place</span> ' + p.lat.toFixed(4) + "," + p.lon.toFixed(4) : '<span class="material-symbols-outlined" style="font-size:10px;vertical-align:-1px;color:#f97316">warning</span> Pas de GPS'}</div>
         ${p.legend ? '<div style="font-size:11px;color:#cbd5e1">' + p.legend + "</div>" : ""}
       </div>`,
         )
         .join("")}
     </div>
-    <button onclick="this.parentElement.remove()" class="btn" style="margin-top:16px;padding:10px 30px;background:rgba(255,255,255,0.1);border:1px solid #fff;color:#fff;font-size:14px">✕ Fermer</button>
+    <button onclick="this.parentElement.remove()" class="btn" style="margin-top:16px;padding:10px 30px;background:rgba(255,255,255,0.1);border:1px solid #fff;color:#fff;font-size:14px"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">close</span> Fermer</button>
   `;
   document.body.appendChild(modal);
 }
@@ -2456,7 +2471,7 @@ function exportRecord(recordId) {
     .writeText(lines)
     .then(() =>
       alert(
-        "📋 Fiche copiée dans le presse-papier !\nVous pouvez la coller dans un email ou un message.",
+        "Fiche copiée dans le presse-papier !\nVous pouvez la coller dans un email ou un message.",
       ),
     )
     .catch(() => {
@@ -2466,7 +2481,7 @@ function exportRecord(recordId) {
       ta.select();
       document.execCommand("copy");
       ta.remove();
-      alert("📋 Fiche copiée !");
+      alert("Fiche copiée !");
     });
 }
 
@@ -2483,13 +2498,13 @@ function deleteRecord(recordId) {
 // ============================================================
 function buildPhotos() {
   const el = document.getElementById("tab-photos");
-  el.innerHTML = `<h2 style="font-family:'Space Grotesk';font-size:18px;font-weight:800;color:#f1f5f9;margin-bottom:4px">📸 Relevés de terrain & Photos</h2>
+  el.innerHTML = `<h2 style="font-family:'Space Grotesk';font-size:18px;font-weight:800;color:#f1f5f9;margin-bottom:4px"><span class="material-symbols-outlined" style="vertical-align:-4px">photo_camera</span> Relevés de terrain & Photos</h2>
   <p style="color:#94a3b8;font-size:12px;margin-bottom:14px">Photos géolocalisées, zones brûlées, points de départ de feu</p>
   <div style="max-width:800px;margin:0 auto;display:flex;flex-direction:column;gap:14px">
 
     <!-- ZONE BRÛLÉE -->
     <div class="card" style="border-left:4px solid #f97316">
-      <div style="font-size:13px;font-weight:700;color:#f97316;font-family:'Space Grotesk';margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px">🔥 Déclarer une zone brûlée / Départ de feu</div>
+      <div style="font-size:13px;font-weight:700;color:#f97316;font-family:'Space Grotesk';margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">local_fire_department</span> Déclarer une zone brûlée / Départ de feu</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
         <div style="flex:1 1 140px"><label style="font-size:10px;color:#94a3b8">Date</label><input type="date" id="bz-date" value="${new Date().toISOString().split("T")[0]}" class="field-input"/></div>
         <div style="flex:1 1 100px"><label style="font-size:10px;color:#94a3b8">Heure détection</label><input type="time" id="bz-time" value="${new Date().toTimeString().substring(0, 5)}" class="field-input"/></div>
@@ -2518,7 +2533,7 @@ function buildPhotos() {
         <div style="flex:0 0 auto;align-self:flex-end">
           ${
             myPos && geoOn
-              ? `<button onclick="document.getElementById('bz-lat').value='${myPos.lat.toFixed(6)}';document.getElementById('bz-lon').value='${myPos.lon.toFixed(6)}'" class="btn" style="padding:6px 10px;background:rgba(34,197,94,0.1);border:1px solid #22c55e;color:#22c55e;font-size:11px">📍 Ma position</button>`
+              ? `<button onclick="document.getElementById('bz-lat').value='${myPos.lat.toFixed(6)}';document.getElementById('bz-lon').value='${myPos.lon.toFixed(6)}'" class="btn" style="padding:6px 10px;background:rgba(34,197,94,0.1);border:1px solid #22c55e;color:#22c55e;font-size:11px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">my_location</span> Ma position</button>`
               : `<span style="font-size:10px;color:#64748b">GPS inactif</span>`
           }
         </div>
@@ -2541,31 +2556,31 @@ function buildPhotos() {
       </div>
       <div style="margin-bottom:8px"><label style="font-size:10px;color:#94a3b8">Description / Observations</label><textarea id="bz-desc" class="field-input" rows="2" placeholder="Cause probable, direction du vent, moyens engagés..."></textarea></div>
       <div style="margin-bottom:8px">
-        <label style="font-size:10px;color:#94a3b8;display:block;margin-bottom:4px">📸 Photos du relevé</label>
+        <label style="font-size:10px;color:#94a3b8;display:block;margin-bottom:4px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">photo_camera</span> Photos du relevé</label>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
           <label class="btn" style="padding:6px 14px;background:rgba(249,115,22,0.1);border:1px solid #f97316;color:#f97316;cursor:pointer;font-size:11px">
-            📷 Photo terrain
+            <span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">photo_camera</span> Photo terrain
             <input type="file" accept="image/*" capture="environment" onchange="handlePhotoCapture(this,'burned')" style="display:none"/>
           </label>
           <label class="btn" style="padding:6px 14px;background:rgba(168,85,247,0.1);border:1px solid #a855f7;color:#a855f7;cursor:pointer;font-size:11px">
-            🖼️ Galerie
+            <span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">image</span> Galerie
             <input type="file" accept="image/*" onchange="handlePhotoCapture(this,'burned')" style="display:none"/>
           </label>
         </div>
         <div id="burned-photos-preview" style="display:flex;flex-wrap:wrap;gap:6px"></div>
       </div>
-      <button onclick="submitBurnedZone()" class="btn" style="padding:10px;width:100%;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-size:13px;font-weight:700;font-family:'Space Grotesk'">🔥 Enregistrer le relevé</button>
+      <button onclick="submitBurnedZone()" class="btn" style="padding:10px;width:100%;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-size:13px;font-weight:700;font-family:'Space Grotesk'"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">local_fire_department</span> Enregistrer le relevé</button>
     </div>
 
     <!-- HISTORIQUE DES RELEVÉS -->
     <div class="card">
-      <div style="font-size:13px;font-weight:700;color:#22d3ee;font-family:'Space Grotesk';margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px">📋 Relevés enregistrés (${getAccessibleBurned().length})</div>
+      <div style="font-size:13px;font-weight:700;color:#22d3ee;font-family:'Space Grotesk';margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">list_alt</span> Relevés enregistrés (${getAccessibleBurned().length})</div>
       <div id="burned-list" style="display:flex;flex-direction:column;gap:6px"></div>
     </div>
 
     <!-- TOUTES LES PHOTOS -->
     <div class="card">
-      <div style="font-size:13px;font-weight:700;color:#3b82f6;font-family:'Space Grotesk';margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px">🖼️ Galerie photos (${getAccessiblePhotos().length})</div>
+      <div style="font-size:13px;font-weight:700;color:#3b82f6;font-family:'Space Grotesk';margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">collections</span> Galerie photos (${getAccessiblePhotos().length})</div>
       <div id="all-photos-grid" style="display:flex;flex-wrap:wrap;gap:8px"></div>
     </div>
   </div>`;
@@ -2618,7 +2633,7 @@ function submitBurnedZone() {
   const lat = parseFloat(document.getElementById("bz-lat")?.value);
   const lon = parseFloat(document.getElementById("bz-lon")?.value);
   if (isNaN(lat) || isNaN(lon)) {
-    alert("⚠️ Veuillez renseigner les coordonnées GPS");
+    alert("Veuillez renseigner les coordonnées GPS");
     return;
   }
   const today = new Date().toISOString().split("T")[0];
@@ -2650,7 +2665,7 @@ function submitBurnedZone() {
     feu_eteint: "✅ Feu éteint",
   };
   alert(
-    "✅ Relevé enregistré !\n" +
+    "Relevé enregistré !\n" +
       (typeLabels[record.type] || record.type) +
       "\n📅 " +
       formatDateFR(record.date) +
@@ -2676,10 +2691,14 @@ function renderBurnedList() {
     return;
   }
   const typeIcons = {
-    depart_feu: "🔥",
-    zone_brulee: "⬛",
-    reprise_feu: "🔴",
-    feu_eteint: "✅",
+    depart_feu:
+      '<span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;color:#f97316">local_fire_department</span>',
+    zone_brulee:
+      '<span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;color:#64748b">square</span>',
+    reprise_feu:
+      '<span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;color:#dc2626">radio_button_checked</span>',
+    feu_eteint:
+      '<span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;color:#22c55e">check_circle</span>',
   };
   const typeLabels = {
     depart_feu: "Départ de feu",
@@ -2692,13 +2711,13 @@ function renderBurnedList() {
       (r) => `
     <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(0,0,0,0.2);border-radius:6px;border-left:3px solid ${r.type === "depart_feu" || r.type === "reprise_feu" ? "#f97316" : r.type === "feu_eteint" ? "#22c55e" : "#64748b"}">
       <div>
-        <div style="font-size:12px;font-weight:700;color:#f1f5f9">${typeIcons[r.type] || "📍"} ${typeLabels[r.type] || r.type}</div>
+        <div style="font-size:12px;font-weight:700;color:#f1f5f9">${typeIcons[r.type] || '<span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">place</span>'} ${typeLabels[r.type] || r.type}</div>
         <div style="font-size:10px;color:#94a3b8">${formatDateFR(r.date)} ${r.time} • ${r.commune} ${r.lieu ? "— " + r.lieu : ""}</div>
-        <div style="font-size:10px;color:#64748b">${r.surface ? r.surface + " " + r.surfaceUnit : ""} ${r.vegetation ? "• " + r.vegetation : ""} ${r.photos ? "• 📸" + r.photos.length : ""}</div>
+        <div style="font-size:10px;color:#64748b">${r.surface ? r.surface + " " + r.surfaceUnit : ""} ${r.vegetation ? "• " + r.vegetation : ""} ${r.photos ? '• <span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">photo_camera</span>' + r.photos.length : ""}</div>
       </div>
       <div style="display:flex;gap:4px">
-        <button onclick="showBurnedOnMap('${r.id}')" class="btn" style="padding:4px 8px;background:rgba(249,115,22,0.1);border:1px solid #f97316;color:#f97316;font-size:10px">🗺️</button>
-        <button onclick="deleteBurned('${r.id}')" class="btn" style="padding:4px 8px;background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:10px">🗑️</button>
+        <button onclick="showBurnedOnMap('${r.id}')" class="btn" style="padding:4px 8px;background:rgba(249,115,22,0.1);border:1px solid #f97316;color:#f97316;font-size:10px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">map</span></button>
+        <button onclick="deleteBurned('${r.id}')" class="btn" style="padding:4px 8px;background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:10px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">delete</span></button>
       </div>
     </div>
   `,
@@ -2714,10 +2733,10 @@ function showBurnedOnMap(id) {
     if (window._burnedMarker) map.removeLayer(window._burnedMarker);
     const icon =
       record.type === "depart_feu" || record.type === "reprise_feu"
-        ? "🔥"
+        ? '<span class="material-symbols-outlined" style="font-size:28px;color:#f97316">local_fire_department</span>'
         : record.type === "feu_eteint"
-          ? "✅"
-          : "⬛";
+          ? '<span class="material-symbols-outlined" style="font-size:28px;color:#22c55e">check_circle</span>'
+          : '<span class="material-symbols-outlined" style="font-size:28px;color:#64748b">square</span>';
     const typeLabels = {
       depart_feu: "Départ de feu",
       zone_brulee: "Zone brûlée",
@@ -2726,7 +2745,7 @@ function showBurnedOnMap(id) {
     };
     window._burnedMarker = L.marker([record.lat, record.lon], {
       icon: L.divIcon({
-        html: `<div style="text-align:center"><div style="font-size:28px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))">${icon}</div><div style="background:rgba(249,115,22,0.9);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;white-space:nowrap;margin-top:-4px">${typeLabels[record.type] || ""}<br>${formatDateFR(record.date)} ${record.time}<br>${record.commune}${record.lieu ? " — " + record.lieu : ""}</div></div>`,
+        html: `<div style="text-align:center"><div style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))">${icon}</div><div style="background:rgba(249,115,22,0.9);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;white-space:nowrap;margin-top:-4px">${typeLabels[record.type] || ""}<br>${formatDateFR(record.date)} ${record.time}<br>${record.commune}${record.lieu ? " — " + record.lieu : ""}</div></div>`,
         className: "",
         iconAnchor: [20, 15],
       }),
@@ -2736,7 +2755,7 @@ function showBurnedOnMap(id) {
 }
 
 function deleteBurned(id) {
-  if (!confirm("⚠️ Supprimer ce relevé ?")) return;
+  if (!confirm("Supprimer ce relevé ?")) return;
   burnedZones = burnedZones.filter((b) => b.id !== id);
   dbSave("burned", burnedZones);
   buildPhotos();
@@ -2759,7 +2778,7 @@ function renderAllPhotos() {
       <img src="${p.data}" style="width:110px;height:85px;object-fit:cover;border-radius:6px;border:1px solid rgba(255,255,255,0.1)"/>
       <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.75);font-size:8px;color:#94a3b8;padding:2px 4px;border-radius:0 0 6px 6px">
         ${formatDateFR(p.date)} ${p.time}<br>
-        ${p.commune || ""} ${p.lat ? "📍" : ""}
+        ${p.commune || ""} ${p.lat ? '<span class="material-symbols-outlined" style="font-size:8px;vertical-align:-1px">place</span>' : ""}
       </div>
     </div>
   `,
@@ -2778,11 +2797,11 @@ function showPhotoModal(photoId) {
     <div style="margin-top:12px;text-align:center;color:#f1f5f9">
       <div style="font-size:14px;font-weight:700;font-family:'Space Grotesk'">${formatDateFR(p.date)} à ${p.time}</div>
       <div style="font-size:12px;color:#94a3b8;margin-top:4px">${p.commune || "Commune inconnue"}</div>
-      ${p.lat ? `<div style="font-size:11px;color:#22c55e;margin-top:2px">📍 ${p.lat.toFixed(6)}, ${p.lon.toFixed(6)} ${p.alt ? "• Alt. " + p.alt + "m" : ""}</div>` : '<div style="font-size:11px;color:#f97316;margin-top:2px">⚠️ Pas de coordonnées GPS</div>'}
+      ${p.lat ? `<div style="font-size:11px;color:#22c55e;margin-top:2px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-1px">place</span> ${p.lat.toFixed(6)}, ${p.lon.toFixed(6)} ${p.alt ? "• Alt. " + p.alt + "m" : ""}</div>` : '<div style="font-size:11px;color:#f97316;margin-top:2px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-1px">warning</span> Pas de coordonnées GPS</div>'}
     </div>
     <div style="display:flex;gap:8px;margin-top:12px">
-      ${p.lat ? `<button onclick="showPhotoOnMap(${p.lat},${p.lon},'${p.date}','${p.time}');this.closest('div[style]').remove()" class="btn" style="padding:8px 16px;background:rgba(34,197,94,0.1);border:1px solid #22c55e;color:#22c55e;font-size:12px">🗺️ Voir sur la carte</button>` : ""}
-      <button onclick="this.closest('div[style*=fixed]').remove()" class="btn" style="padding:8px 20px;background:rgba(255,255,255,0.1);border:1px solid #fff;color:#fff;font-size:12px">✕ Fermer</button>
+      ${p.lat ? `<button onclick="showPhotoOnMap(${p.lat},${p.lon},'${p.date}','${p.time}');this.closest('div[style]').remove()" class="btn" style="padding:8px 16px;background:rgba(34,197,94,0.1);border:1px solid #22c55e;color:#22c55e;font-size:12px"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">map</span> Voir sur la carte</button>` : ""}
+      <button onclick="this.closest('div[style*=fixed]').remove()" class="btn" style="padding:8px 20px;background:rgba(255,255,255,0.1);border:1px solid #fff;color:#fff;font-size:12px"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">close</span> Fermer</button>
     </div>
   `;
   document.body.appendChild(modal);
@@ -2794,7 +2813,7 @@ function showPhotoOnMap(lat, lon, date, time) {
     if (window._photoMarker) map.removeLayer(window._photoMarker);
     window._photoMarker = L.marker([lat, lon], {
       icon: L.divIcon({
-        html: `<div style="text-align:center"><div style="font-size:24px">📸</div><div style="background:rgba(59,130,246,0.9);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;white-space:nowrap;margin-top:-4px">Photo ${formatDateFR(date)} ${time}</div></div>`,
+        html: `<div style="text-align:center"><div style="font-size:24px"><span class="material-symbols-outlined" style="font-size:32px;color:#3b82f6;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))">photo_camera</span></div><div style="background:rgba(59,130,246,0.9);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;white-space:nowrap;margin-top:-4px">Photo ${formatDateFR(date)} ${time}</div></div>`,
         className: "",
         iconAnchor: [12, 12],
       }),
@@ -2809,10 +2828,10 @@ function showPhotoOnMap(lat, lon, date, time) {
 function buildCodes() {
   const el = document.getElementById("tab-codes");
   const comms = auth.level === "dept" ? COMMUNES : [auth.commune];
-  el.innerHTML = `<h2 style="font-family:'Space Grotesk';font-size:18px;font-weight:800;color:#f1f5f9;margin-bottom:4px">🔑 Codes d'accès</h2>
+  el.innerHTML = `<h2 style="font-family:'Space Grotesk';font-size:18px;font-weight:800;color:#f1f5f9;margin-bottom:4px"><span class="material-symbols-outlined" style="vertical-align:-4px">key</span> Codes d'accès</h2>
   <p style="color:#94a3b8;font-size:12px;margin-bottom:14px">${auth.level === "dept" ? "Tous les codes" : "Code de " + auth.commune}</p>
   <div class="card" style="margin-bottom:14px;border-left:4px solid #dc2626"><div style="font-size:11px;color:#f87171;font-weight:600">Code département</div><div style="font-size:18px;font-weight:800;font-family:'Space Grotesk';color:#fca5a5;letter-spacing:2px">${DC}</div></div>
-  <input placeholder="🔍 Rechercher..." class="field-input" style="margin-bottom:10px" oninput="filterCodes(this.value)"/>
+  <input placeholder="Rechercher..." class="field-input" style="margin-bottom:10px" oninput="filterCodes(this.value)"/>
   <div id="codes-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:4px"></div>`;
   filterCodes("");
 }
@@ -2839,27 +2858,27 @@ function buildSOSConfig() {
   const comms = auth.level === "dept" ? COMMUNES : [auth.commune];
 
   el.innerHTML = `
-    <h2 style="font-family:'Space Grotesk';font-size:20px;font-weight:800;color:#f1f5f9;margin-bottom:4px">📱 Téléphones SOS par commune</h2>
+    <h2 style="font-family:'Space Grotesk';font-size:20px;font-weight:800;color:#f1f5f9;margin-bottom:4px"><span class="material-symbols-outlined" style="vertical-align:-4px">phonelink_ring</span> Téléphones SOS par commune</h2>
     <p style="color:#94a3b8;font-size:12px;margin-bottom:6px">Configurez 1 à 3 numéros de téléphone qui recevront l'alerte SOS pour chaque commune.</p>
 
     <div style="background:rgba(220,38,38,0.06);border:1px solid rgba(220,38,38,0.2);border-radius:10px;padding:14px;margin-bottom:16px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-        <span style="font-size:24px">🚨</span>
+        <span class="material-symbols-outlined" style="font-size:24px;color:#ef4444">emergency</span>
         <div>
           <div style="font-size:14px;font-weight:700;color:#fca5a5;font-family:'Space Grotesk'">Fonctionnement SOS</div>
         </div>
       </div>
       <div style="font-size:12px;color:#94a3b8;line-height:1.8">
-        1️⃣ L'utilisateur appuie sur le bouton <b style="color:#ef4444">🚨 SOS</b><br>
-        2️⃣ Un <b style="color:#fcd34d">compte à rebours de 10 secondes</b> démarre<br>
-        3️⃣ L'utilisateur peut <b style="color:#22c55e">annuler</b> pendant ces 10 secondes (fausse manœuvre)<br>
-        4️⃣ Après 10s : l'alerte est envoyée avec la <b style="color:#93c5fd">position GPS</b> aux téléphones configurés<br>
-        5️⃣ Le <b style="color:#fca5a5">1er numéro</b> est appelé automatiquement sur mobile
+        1. L'utilisateur appuie sur le bouton <b style="color:#ef4444"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">emergency_share</span> SOS</b><br>
+        2. Un <b style="color:#fcd34d">compte à rebours de 10 secondes</b> démarre<br>
+        3. L'utilisateur peut <b style="color:#22c55e">annuler</b> pendant ces 10 secondes (fausse manœuvre)<br>
+        4. Après 10s : l'alerte est envoyée avec la <b style="color:#93c5fd">position GPS</b> aux téléphones configurés<br>
+        5. Le <b style="color:#fca5a5">1er numéro</b> est appelé automatiquement sur mobile
       </div>
     </div>
 
     <div style="margin-bottom:14px">
-      <input id="sos-search" placeholder="🔍 Rechercher une commune..." class="field-input" oninput="filterSOSConfig()"/>
+      <input id="sos-search" placeholder="Rechercher une commune..." class="field-input" oninput="filterSOSConfig()"/>
     </div>
 
     <div id="sos-config-list" style="display:flex;flex-direction:column;gap:8px"></div>
@@ -2895,28 +2914,28 @@ function filterSOSConfig() {
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:10px">
         <div>
           <div style="font-size:14px;font-weight:700;color:#f1f5f9;font-family:'Space Grotesk'">${c}</div>
-          <div style="font-size:10px;color:#64748b">${massif ? massif.nom : ""} • ${configured ? `${phones.length} tél. configuré${phones.length > 1 ? "s" : ""}` : "⚠️ Aucun téléphone"}</div>
+          <div style="font-size:10px;color:#64748b">${massif ? massif.nom : ""} • ${configured ? `${phones.length} tél. configuré${phones.length > 1 ? "s" : ""}` : '<span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px;color:#ef4444">warning</span> Aucun téléphone'}</div>
         </div>
-        <span style="padding:3px 10px;border-radius:10px;background:${configured ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)"};color:${configured ? "#22c55e" : "#ef4444"};font-size:10px;font-weight:700;border:1px solid ${configured ? "#22c55e" : "#ef4444"}">${configured ? "✅ OK" : "❌ Non configuré"}</span>
+        <span style="padding:3px 10px;border-radius:10px;background:${configured ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)"};color:${configured ? "#22c55e" : "#ef4444"};font-size:10px;font-weight:700;border:1px solid ${configured ? "#22c55e" : "#ef4444"}">${configured ? '<span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">check_circle</span> OK' : '<span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">cancel</span> Non configuré'}</span>
       </div>
       <div style="display:flex;flex-direction:column;gap:6px">
         ${[0, 1, 2]
           .map(
             (i) => `
           <div style="display:flex;gap:6px;align-items:center">
-            <span style="font-size:10px;color:#64748b;min-width:60px">📱 Tél. ${i + 1}${i === 0 ? " *" : ""}</span>
+            <span style="font-size:10px;color:#64748b;min-width:60px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">smartphone</span> Tél. ${i + 1}${i === 0 ? " *" : ""}</span>
             <input id="sos-phone-${c.replace(/[^a-zA-Z0-9]/g, "_")}-${i}"
               value="${phones[i] || ""}"
               placeholder="${i === 0 ? "06 XX XX XX XX (obligatoire)" : "06 XX XX XX XX (optionnel)"}"
               onchange="updateSOSPhone('${c.replace(/'/g, "\\'")}', ${i}, this.value)"
               class="field-input" type="tel" style="flex:1;font-size:13px;${i === 0 ? "border-color:rgba(220,38,38,0.3)" : ""}"/>
-            ${phones[i] ? `<a href="tel:${phones[i].replace(/\\s/g, "")}" style="font-size:10px;color:#22c55e;text-decoration:none">📞</a>` : ""}
+            ${phones[i] ? `<a href="tel:${phones[i].replace(/\\s/g, "")}" style="font-size:10px;color:#22c55e;text-decoration:none"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">call</span></a>` : ""}
           </div>
         `,
           )
           .join("")}
       </div>
-      ${!configured ? '<div style="font-size:10px;color:#ef4444;margin-top:6px">⚠️ Configurez au moins le téléphone 1 pour activer le SOS</div>' : ""}
+      ${!configured ? '<div style="font-size:10px;color:#ef4444;margin-top:6px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-1px">warning</span> Configurez au moins le téléphone 1 pour activer le SOS</div>' : ""}
     </div>`;
     })
     .join("");
