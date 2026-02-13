@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>CCFF du VAR — Patrouilles Feux de Forêts</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- SOS COUNTDOWN OVERLAY -->
+    <div
+      id="sos-countdown"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        background: rgba(127, 29, 29, 0.97);
+      "
+    >
+      <div
+        style="text-align: center; color: #fff; max-width: 400px; padding: 20px"
+      >
+        <div style="margin-bottom:8px"><span class="material-symbols-outlined" style="font-size:64px">emergency_share</span></div>
+        <div
+          style="
+            font-size: 32px;
+            font-weight: 800;
+            font-family: &quot;Space Grotesk&quot;;
+            letter-spacing: 3px;
+            margin-bottom: 6px;
+          "
+        >
+          ALERTE SOS
+        </div>
+        <div style="font-size: 15px; color: #fecaca; margin-bottom: 20px">
+          L'alerte sera envoyée dans :
+        </div>
+        <div
+          id="sos-timer"
+          style="
+            font-size: 96px;
+            font-weight: 800;
+            font-family: &quot;Space Grotesk&quot;;
+            color: #fca5a5;
+            line-height: 1;
+            margin-bottom: 20px;
+          "
+        >
+          10
+        </div>
+        <div
+          style="
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 24px;
+          "
+        >
+          <div
+            id="sos-progress"
+            style="
+              width: 100%;
+              height: 100%;
+              background: #ef4444;
+              border-radius: 4px;
+              transition: width 1s linear;
+            "
+          ></div>
+        </div>
+        <div
+          id="sos-countdown-pos"
+          style="
+            font-family: monospace;
+            color: #fca5a5;
+            font-size: 13px;
+            margin-bottom: 20px;
+          "
+        ></div>
+        <button onclick="cancelSOS()" class="btn" style="padding:14px 40px;background:rgba(255,255,255,0.15);border:2px solid #fff;color:#fff;font-size:18px;font-weight:800;font-family:'Space Grotesk';letter-spacing:1px;border-radius:12px"><span class="material-symbols-outlined">pan_tool</span> ANNULER</button>
+        <div
+          style="
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 12px;
+          "
+        >
+          Appuyez pour annuler la fausse manœuvre
+        </div>
+      </div>
+    </div>
+
+    <!-- SOS SENT OVERLAY -->
+    <div
+      id="sos-sent"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        animation: sosFlash 0.6s ease-in-out infinite;
+      "
+    >
+      <div style="text-align: center; color: #fff">
+        <div style="font-size:80px"><span class="material-symbols-outlined" style="font-size:80px">emergency_share</span></div>
+        <div
+          style="
+            font-size: 40px;
+            font-weight: 800;
+            font-family: &quot;Space Grotesk&quot;;
+            letter-spacing: 4px;
+          "
+        >
+          SOS ENVOYÉ
+        </div>
+        <div style="font-size: 16px; margin-top: 10px; color: #fecaca">
+          Alerte transmise aux responsables
+        </div>
+        <div
+          id="sos-sent-pos"
+          style="font-family: monospace; color: #fca5a5; margin-top: 6px"
+        ></div>
+        <div
+          id="sos-sent-phones"
+          style="margin-top: 12px; font-size: 14px; color: #fecaca"
+        ></div>
+        <div
+          style="
+            width: 28px;
+            height: 28px;
+            border: 3px solid #fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            margin: 16px auto;
+            animation: spin 1s linear infinite;
+          "
+        ></div>
+      </div>
+    </div>
+
+    <!-- LOGIN -->
+    <div
+      id="login-screen"
+      style="
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div style="width: 100%; max-width: 420px; padding: 20px">
+        <div
+          style="
+            background: linear-gradient(135deg, #7f1d1d, #991b1b, #450a0a);
+            border-radius: 16px;
+            padding: 36px 28px;
+            text-align: center;
+            border: 1px solid #dc2626;
+            box-shadow: 0 0 60px rgba(220, 38, 38, 0.15);
+          "
+        >
+          <div style="margin-bottom:8px"><span class="material-symbols-outlined" style="font-size:52px; color:#fca5a5">local_fire_department</span></div>
+          <h1
+            style="
+              font-family: &quot;Space Grotesk&quot;;
+              font-size: 26px;
+              font-weight: 800;
+              color: #fff;
+              margin-bottom: 2px;
+            "
+          >
+            CCFF du VAR
+          </h1>
+          <div style="color: #fca5a5; font-size: 12px; margin-bottom: 12px">
+            Comité Communal Feux de Forêts — Var (83)
+          </div>
+          <div style="margin-bottom: 20px">
+            <img
+              id="login-logo"
+              style="max-width: 200px; border-radius: 8px"
+              alt="PyroVigil"
+            />
+          </div>
+          <div
+            style="
+              background: rgba(0, 0, 0, 0.3);
+              border-radius: 10px;
+              padding: 20px;
+              text-align: left;
+            "
+          >
+            <label style="font-size:11px;color:#fca5a5;font-weight:600"><span class="material-symbols-outlined" style="font-size:14px">key</span> Code d'accès</label>
+            <input
+              id="login-code"
+              placeholder="Code commune ou département"
+              style="
+                width: 100%;
+                padding: 12px;
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                background: rgba(0, 0, 0, 0.5);
+                color: #fff;
+                font-size: 16px;
+                text-align: center;
+                letter-spacing: 2px;
+                margin-top: 6px;
+                font-family: &quot;Space Grotesk&quot;;
+              "
+            />
+            <div
+              id="login-error"
+              style="
+                color: #fca5a5;
+                font-size: 11px;
+                margin-top: 6px;
+                display: none;
+              "
+            ></div>
+            <button
+              onclick="doLogin()"
+              class="btn"
+              style="
+                width: 100%;
+                padding: 11px;
+                margin-top: 14px;
+                background: #dc2626;
+                color: #fff;
+                font-size: 14px;
+                font-family: &quot;Space Grotesk&quot;;
+                letter-spacing: 0.5px;
+              "
+            >
+              Se connecter
+            </button>
+          </div>
+          <div
+            style="
+              margin-top: 20px;
+              font-size: 11px;
+              color: #94a3b8;
+              line-height: 1.6;
+            "
+          >
+            <b style="color: #fca5a5">Commune</b> : code fourni par votre
+            CCFF<br />
+            <b style="color: #fca5a5">Département</b> : code transmis par les
+            communes
+          </div>
+        </div>
+        <div
+          id="demo-codes"
+          style="
+            margin-top: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 11px;
+            color: #64748b;
+          "
+        ></div>
+      </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="main-app" style="display: none">
+      <!-- HEADER -->
+      <header
+        style="
+          background: linear-gradient(135deg, #7f1d1d, #991b1b, #450a0a);
+          padding: 10px 16px;
+          border-bottom: 2px solid #dc2626;
+        "
+      >
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+          "
+        >
+          <div style="display: flex; align-items: center; gap: 8px">
+            <img
+              id="header-logo"
+              style="height: 36px; border-radius: 4px"
+              alt="PyroVigil"
+            />
+            <div>
+              <h1
+                style="
+                  font-size: 18px;
+                  font-weight: 800;
+                  color: #fff;
+                  font-family: &quot;Space Grotesk&quot;;
+                "
+              >
+                CCFF du VAR
+              </h1>
+              <div
+                id="auth-label"
+                style="font-size: 10px; color: #fca5a5"
+              ></div>
+            </div>
+          </div>
+          <div
+            style="
+              display: flex;
+              gap: 6px;
+              align-items: center;
+              flex-wrap: wrap;
+            "
+          >
+            <button
+              id="geo-btn"
+              onclick="toggleGeo()"
+              class="btn"
+              style="padding: 4px 10px; font-size: 10px"
+            ></button>
+            <span
+              id="pos-label"
+              style="font-size: 9px; color: #94a3b8; font-family: monospace"
+            ></span>
+            <button onclick="triggerSOS()" class="btn" style="padding:6px 16px;border:2px solid #ef4444;background:#dc2626;color:#fff;font-size:13px;font-weight:800;font-family:'Space Grotesk';letter-spacing:2px;box-shadow:0 0 20px rgba(220,38,38,0.4);animation:pulse 2s infinite"><span class="material-symbols-outlined">emergency_share</span> SOS</button>
+            <button onclick="logout()" class="btn" style="padding:4px 10px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#94a3b8;font-size:10px"><span class="material-symbols-outlined">power_settings_new</span></button>
+          </div>
+        </div>
+      </header>
+
+      <!-- NAV -->
+      <nav
+        id="nav-bar"
+        style="
+          padding: 8px 16px;
+          display: flex;
+          gap: 4px;
+          flex-wrap: wrap;
+          background: rgba(255, 255, 255, 0.02);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          overflow-x: auto;
+        "
+      ></nav>
+
+      <!-- MAP TAB -->
+      <div id="tab-carte" class="tab-content active" style="padding: 0">
+        <div style="position: relative; height: calc(100vh - 90px)">
+          <div id="map"></div>
+
+          <!-- Map controls top-right -->
+          <div
+            style="
+              position: absolute;
+              top: 10px;
+              right: 10px;
+              z-index: 1000;
+              display: flex;
+              flex-direction: column;
+              gap: 6px;
+              max-width: 220px;
+            "
+          >
+            <!-- Layer switcher -->
+            <div class="map-ctrl">
+              <div
+                style="
+                  font-size: 10px;
+                  color: #94a3b8;
+                  font-weight: 700;
+                  margin-bottom: 6px;
+                "
+              >
+                FOND DE CARTE
+              </div>
+              <div style="display: flex; gap: 3px">
+                <button
+                  onclick="switchLayer('topo')"
+                  id="ly-topo"
+                  class="btn"
+                  style="
+                    flex: 1;
+                    padding: 5px 4px;
+                    font-size: 9px;
+                    border: 1px solid #dc2626;
+                    background: rgba(220, 38, 38, 0.2);
+                    color: #fca5a5;
+                  "
+                >
+                  Topo IGN
+                </button>
+                <button
+                  onclick="switchLayer('ortho')"
+                  id="ly-ortho"
+                  class="btn"
+                  style="
+                    flex: 1;
+                    padding: 5px 4px;
+                    font-size: 9px;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    background: rgba(0, 0, 0, 0.3);
+                    color: #64748b;
+                  "
+                >
+                  Ortho
+                </button>
+                <button
+                  onclick="switchLayer('osm')"
+                  id="ly-osm"
+                  class="btn"
+                  style="
+                    flex: 1;
+                    padding: 5px 4px;
+                    font-size: 9px;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    background: rgba(0, 0, 0, 0.3);
+                    color: #64748b;
+                  "
+                >
+                  OSM
+                </button>
+              </div>
+            </div>
+            <!-- Toggles -->
+            <div class="map-ctrl" id="layer-toggles"></div>
+            <!-- Risk legend -->
+            <div class="map-ctrl" id="risk-legend"></div>
+          </div>
+
+          <!-- Logo watermark on map -->
+          <div
+            style="
+              position: absolute;
+              bottom: 60px;
+              right: 10px;
+              z-index: 1000;
+              opacity: 0.6;
+            "
+          >
+            <img
+              id="map-logo"
+              style="height: 30px; border-radius: 4px"
+              alt="PyroVigil"
+            />
+          </div>
+
+          <!-- Navigation / Guidage GPS panel -->
+          <div
+            style="
+              position: absolute;
+              bottom: 10px;
+              left: 10px;
+              right: 10px;
+              z-index: 1000;
+            "
+          >
+            <div class="map-ctrl" style="max-width: 560px">
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 6px;
+                "
+              >
+                <div style="font-size:10px;color:#94a3b8;font-weight:700"><span class="material-symbols-outlined">explore</span> GUIDAGE GPS — NAVIGATION</div>
+                <button
+                  onclick="toggleNavPanel()"
+                  id="nav-toggle"
+                  class="btn"
+                  style="
+                    padding: 2px 6px;
+                    font-size: 9px;
+                    background: rgba(255, 255, 255, 0.05);
+                    color: #64748b;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                  "
+                >
+                  ▼
+                </button>
+              </div>
+              <div id="nav-panel-body">
+                <!-- Mode selector -->
+                <div style="display: flex; gap: 3px; margin-bottom: 6px">
+                  <button onclick="setNavMode('gps')" id="nm-gps" class="btn" style="flex:1;padding:5px 6px;font-size:10px;border:1px solid #22c55e;background:rgba(34,197,94,0.15);color:#22c55e"><span class="material-symbols-outlined">my_location</span> GPS</button>
+                  <button onclick="setNavMode('dfci')" id="nm-dfci" class="btn" style="flex:1;padding:5px 6px;font-size:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3);color:#64748b"><span class="material-symbols-outlined">grid_4x4</span> DFCI</button>
+                  <button onclick="setNavMode('adresse')" id="nm-adresse" class="btn" style="flex:1;padding:5px 6px;font-size:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3);color:#64748b"><span class="material-symbols-outlined">home</span> Adresse</button>
+                  <button onclick="setNavMode('pei')" id="nm-pei" class="btn" style="flex:1;padding:5px 6px;font-size:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3);color:#64748b"><span class="material-symbols-outlined">water_drop</span> PENA</button>
+                </div>
+                <!-- Input -->
+                <div style="display: flex; gap: 6px; margin-bottom: 6px">
+                  <input
+                    id="nav-input"
+                    placeholder="43.4534, 6.2345"
+                    class="field-input"
+                    style="flex: 1; font-size: 12px"
+                  />
+                  <button
+                    onclick="navigateTarget()"
+                    class="btn"
+                    style="
+                      padding: 8px 12px;
+                      background: #059669;
+                      color: #fff;
+                      font-size: 11px;
+                      white-space: nowrap;
+                    "
+                  >
+                    <span class="material-symbols-outlined">search</span> Voir
+                  </button>
+                </div>
+                <!-- Route options -->
+                <div
+                  style="
+                    display: flex;
+                    gap: 3px;
+                    flex-wrap: wrap;
+                    align-items: center;
+                  "
+                >
+                  <span style="font-size: 10px; color: #64748b"
+                    >Naviguer via :</span
+                  >
+                  <button
+                    onclick="launchNav('waze')"
+                    class="btn"
+                    style="
+                      padding: 4px 10px;
+                      background: rgba(34, 197, 94, 0.1);
+                      border: 1px solid #22c55e;
+                      color: #22c55e;
+                      font-size: 10px;
+                    "
+                  >
+                    <span class="material-symbols-outlined">explore</span> Waze
+                  </button>
+                  <button
+                    onclick="launchNav('gmaps')"
+                    class="btn"
+                    style="
+                      padding: 4px 10px;
+                      background: rgba(59, 130, 246, 0.1);
+                      border: 1px solid #3b82f6;
+                      color: #93c5fd;
+                      font-size: 10px;
+                    "
+                  >
+                    <span class="material-symbols-outlined">map</span> Google Maps
+                  </button>
+                  <button
+                    onclick="launchNav('osm')"
+                    class="btn"
+                    style="
+                      padding: 4px 10px;
+                      background: rgba(148, 163, 184, 0.1);
+                      border: 1px solid #64748b;
+                      color: #94a3b8;
+                      font-size: 10px;
+                    "
+                  >
+                    <span class="material-symbols-outlined">public</span> OSM
+                  </button>
+                  <button
+                    onclick="showRouteOnMap()"
+                    class="btn"
+                    style="
+                      padding: 4px 10px;
+                      background: rgba(249, 115, 22, 0.1);
+                      border: 1px solid #f97316;
+                      color: #f97316;
+                      font-size: 10px;
+                    "
+                  >
+                    <span class="material-symbols-outlined">alt_route</span> Pistes DFCI
+                  </button>
+                </div>
+                <!-- Current target display -->
+                <div
+                  id="nav-target-info"
+                  style="
+                    display: none;
+                    margin-top: 6px;
+                    padding: 6px 8px;
+                    background: rgba(34, 197, 94, 0.08);
+                    border: 1px solid rgba(34, 197, 94, 0.2);
+                    border-radius: 6px;
+                  "
+                >
+                  <div
+                    style="
+                      display: flex;
+                      justify-content: space-between;
+                      align-items: center;
+                    "
+                  >
+                    <div>
+                      <span
+                        style="
+                          font-size: 10px;
+                          color: #22c55e;
+                          font-weight: 700;
+                        "
+                        ><span class="material-symbols-outlined">track_changes</span> Destination :</span
+                      >
+                      <span
+                        id="nav-dest-label"
+                        style="
+                          font-size: 11px;
+                          color: #86efac;
+                          font-family: monospace;
+                        "
+                      ></span>
+                    </div>
+                    <span
+                      id="nav-dist"
+                      style="font-size: 11px; color: #94a3b8"
+                    ></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Data counts top-left -->
+          <div
+            style="position: absolute; top: 10px; left: 10px; z-index: 1000"
+            class="map-ctrl"
+          >
+            <div style="display: flex; flex-direction: column; gap: 2px">
+              <div><span style="font-size:10px;color:#94a3b8"><span class="material-symbols-outlined">local_fire_department</span> </span><span id="patrol-count" style="font-size:12px;font-weight:700;color:#93c5fd;font-family:'Space Grotesk'">0</span><span style="font-size:10px;color:#64748b"> patrouilles</span></div>
+              <div><span style="font-size:10px;color:#94a3b8"><span class="material-symbols-outlined">water_drop</span> </span><span style="font-size:11px;font-weight:600;color:#22d3ee;font-family:'Space Grotesk'">1924</span><span style="font-size:10px;color:#64748b"> PENA</span></div>
+              <div><span style="font-size:10px;color:#94a3b8"><span class="material-symbols-outlined">helicopter</span> </span><span style="font-size:11px;font-weight:600;color:#a855f7;font-family:'Space Grotesk'">647</span><span style="font-size:10px;color:#64748b"> DZ héli</span></div>
+              <div><span style="font-size:10px;color:#94a3b8"><span class="material-symbols-outlined">alt_route</span> </span><span style="font-size:11px;font-weight:600;color:#f97316;font-family:'Space Grotesk'">4047</span><span style="font-size:10px;color:#64748b"> pistes</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RISQUE TAB -->
+      <div id="tab-risque" class="tab-content">
+        <h2 style="font-family:'Space Grotesk';font-size:20px;font-weight:800;color:#f1f5f9;margin-bottom:4px"><span class="material-symbols-outlined">warning</span> Météo préfectorale — Risque feux de forêts</h2>
+        <p style="color: #94a3b8; font-size: 12px; margin-bottom: 6px">
+          Source :
+          <a
+            href="https://www.risque-prevention-incendie.fr/var/"
+            target="_blank"
+            style="color: #93c5fd"
+            >risque-prevention-incendie.fr/var</a
+          >
+          — Carte publiée chaque jour avant 19h pour le lendemain (saison :
+          mi-juin à fin septembre)
+        </p>
+        <div
+          style="
+            background: rgba(234, 179, 8, 0.08);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+            font-size: 12px;
+            color: #fcd34d;
+          "
+        >
+          <span class="material-symbols-outlined">info</span> <b>Hors saison</b> (février) — Les niveaux ci-dessous sont
+          réglables manuellement pour simulation. En saison, ils seront mis à
+          jour quotidiennement selon la carte préfectorale.
+        </div>
+        <div id="risque-zones"></div>
+        <div style="margin-top: 20px">
+          <h3
+            style="
+              font-family: &quot;Space Grotesk&quot;;
+              font-size: 15px;
+              font-weight: 700;
+              color: #f1f5f9;
+              margin-bottom: 10px;
+            "
+          >
+            Légende officielle préfectorale
+          </h3>
+          <div
+            id="risque-legende"
+            style="display: flex; flex-direction: column; gap: 6px"
+          ></div>
+        </div>
+      </div>
+
+      <!-- DASHBOARD TAB -->
+      <div id="tab-dashboard" class="tab-content">
+        <div
+          id="dash-stats"
+          style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px"
+        ></div>
+        <div id="dash-risk" class="card" style="margin-bottom: 16px"></div>
+        <div id="dash-missions" class="card"></div>
+      </div>
+
+      <!-- OTHER TABS (placeholder containers) -->
+      <div id="tab-communes" class="tab-content"></div>
+      <div id="tab-patrouilles" class="tab-content"></div>
+      <div id="tab-missions" class="tab-content"></div>
+      <div id="tab-saisie" class="tab-content"></div>
+      <div id="tab-interventions" class="tab-content"></div>
+      <div id="tab-codes" class="tab-content"></div>
+      <div id="tab-sos-config" class="tab-content"></div>
+      <div id="tab-journal" class="tab-content"></div>
+      <div id="tab-releves" class="tab-content"></div>
+      <div id="tab-historique" class="tab-content"></div>
+      <div id="tab-photos" class="tab-content"></div>
+      <div id="tab-vehicules" class="tab-content"></div>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+  </body>
+</html>

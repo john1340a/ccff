@@ -1,0 +1,131 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: "DM Sans", sans-serif;
+  background: #0a0a0a;
+  color: #e2e8f0;
+  overflow-x: hidden;
+}
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
+.btn {
+  border: none;
+  cursor: pointer;
+  font-family: "DM Sans";
+  font-weight: 600;
+  border-radius: 6px;
+  transition: opacity 0.2s;
+}
+.btn:hover {
+  opacity: 0.85;
+}
+input,
+select,
+textarea {
+  font-family: "DM Sans";
+  outline: none;
+  box-sizing: border-box;
+}
+#map {
+  width: 100%;
+  height: calc(100vh - 90px);
+  z-index: 1;
+}
+.map-ctrl {
+  position: absolute;
+  z-index: 1000;
+  background: rgba(10, 10, 10, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  backdrop-filter: blur(8px);
+  font-size: 11px;
+}
+.leaflet-control-zoom {
+  z-index: 800 !important;
+}
+@keyframes pulse {
+  from {
+    opacity: 0.8;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes spin {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes sosFlash {
+  0%,
+  100% {
+    background: rgba(127, 29, 29, 0.95);
+  }
+  50% {
+    background: rgba(180, 20, 20, 0.98);
+  }
+}
+.dfci-label {
+  background: rgba(0, 0, 0, 0.6) !important;
+  border: 1px solid #64748b !important;
+  color: #eab308 !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  font-family: "Space Grotesk", monospace !important;
+  padding: 1px 5px !important;
+  border-radius: 3px !important;
+  box-shadow: none !important;
+}
+
+/* Tab content */
+.tab-content {
+  padding: 16px;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: none;
+}
+.tab-content.active {
+  display: block;
+}
+.card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 14px;
+}
+.field-input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.4);
+  color: #e2e8f0;
+  font-size: 13px;
+}
+.risk-btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.risk-btn.active {
+  opacity: 1 !important;
+}
+
+.material-symbols-outlined { font-family: 'Material Symbols Outlined'; font-weight: normal; font-style: normal; font-size: 18px; line-height: 1; letter-spacing: normal; text-transform: none; display: inline-block; white-space: nowrap; word-wrap: normal; direction: ltr; -webkit-font-smoothing: antialiased; vertical-align: middle; margin-right: 4px; }
+
